@@ -20,8 +20,7 @@ def chatbot_response(user_input, dataset):
 
     # Check for the best matching intent using fuzzy matching
     for _, row in dataset.iterrows():
-        patterns = row['Patterns'].split('|')  # Split using '|' as delimiter
-        for pattern in patterns:
+        for pattern in row['Patterns'].split(','):
             score = fuzz.token_sort_ratio(user_input, pattern.lower().strip())  # Token-based matching
             if score > highest_score:
                 highest_score = score
