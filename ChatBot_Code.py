@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from fuzzywuzzy import fuzz
 
-
 # Load dataset
 def load_dataset():
     try:
@@ -12,7 +11,7 @@ def load_dataset():
         st.error("Dataset file 'studenthelpdeskDATASET.csv' not found.")
         return None
 
-# Chatbot response logic
+# Chatbot response logic with enhanced matching
 def chatbot_response(user_input, dataset):
     user_input = user_input.lower().strip()
     best_match = None
@@ -22,17 +21,18 @@ def chatbot_response(user_input, dataset):
     # Check for the best matching intent using fuzzy matching
     for _, row in dataset.iterrows():
         for pattern in row['Patterns'].split(','):
-            score = fuzz.partial_ratio(user_input, pattern.lower().strip())
+            score = fuzz.token_sort_ratio(user_input, pattern.lower().strip())  # Token-based matching
             if score > highest_score:
                 highest_score = score
                 best_match = row['Responses']
                 best_intent = row['Intent']
 
     # Check if the highest score is above a threshold
-    if highest_score > 50: 
-        return best_match 
+    if highest_score > 70:
+        return best_match
     else:
-        return "Sorry, I didn't understand that. Can you please try asking in a different way?" 
+        # Fallback for unrecognized inputs
+        return "I'm sorry, I couldn't find an answer. Please try rephrasing your question or contact support."
 
 # Main Streamlit App
 st.title("Student Help Desk Chatbot")
