@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import re
 from fuzzywuzzy import fuzz
 
 # Load dataset
@@ -20,19 +21,23 @@ def chatbot_response(user_input, dataset):
 
     # Check for the best matching intent using fuzzy matching
     for _, row in dataset.iterrows():
-        for pattern in row['Patterns'].split(','):
-            score = fuzz.token_sort_ratio(user_input, pattern.lower().strip())  # Token-based matching
-            if score > highest_score:
-                highest_score = score
-                best_match = row['Responses']
-                best_intent = row['Intent']
+        patterns = row['Patterns'].split('|')  # Split patterns based on pipe delimiter
+        for pattern in patterns:
+            # Use regular expression to handle patterns more flexibly
+            regex_pattern = re.compile(pattern.strip(), re.IGNORECASE)
+            if regex_pattern.search(user_input):  # If user input matches the pattern
+                score = fuzz.token_sort_ratio(user_input, pattern.lower().strip())  # Token-based matching
+                if score > highest_score:
+                    highest_score = score
+                    best_match = row['Responses']
+                    best_intent = row['Intent']
 
     # Check if the highest score is above a threshold
     if highest_score > 70:
         return best_match
     else:
         # Fallback for unrecognized inputs
-        return "I'm sorry, I couldn't find an answer. Please try rephrasing your question or contact support."
+        return "I'm sorry, I couldn't find an answer. Could you please rephrase your question or contact support?"
 
 # Main Streamlit App
 st.title("Student Help Desk Chatbot")
