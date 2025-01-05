@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 from fuzzywuzzy import fuzz
+import os
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 
 # Load dataset
 def load_dataset():
